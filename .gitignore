@@ -84,3 +84,4 @@ profile_default/
 ipython_config.py
 Pipfile.lock
 .pyre/
+node_modules

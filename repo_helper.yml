@@ -24,3 +24,6 @@ python_versions:
 
 manifest_additional:
  - recursive-include folium_zoom_state/static *
+
+additional_ignore:
+ - node_modules
