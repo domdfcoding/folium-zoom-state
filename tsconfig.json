@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./folium_zoom_state/static/js",
+    "outDir": "./folium_zoom_state/",
     "allowJs": true,
     "target": "es2015",
     "moduleResolution": "node",
