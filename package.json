@@ -1,0 +1,32 @@
+{
+  "name": "folium-zoom-state",
+  "version": "1.0.0",
+  "description": "Track walks along canal towpaths.",
+  "main": "index.js",
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.20",
+    "license-report": "^6.8.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack-cli": "^6.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --mode=development",
+    "watch": "webpack --mode=development --watch",
+    "prod": "webpack --mode=production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/domdfcoding/folium-zoom-state.git"
+  },
+  "author": "Dominic Davis-Foster",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/domdfcoding/folium-zoom-state/issues"
+  },
+  "homepage": "https://github.com/domdfcoding/folium-zoom-state#readme"
+}

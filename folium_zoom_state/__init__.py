@@ -31,3 +31,27 @@ __copyright__: str = "2026 Dominic Davis-Foster"
 __license__: str = "MIT License"
 __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
+
+# 3rd party
+import folium
+from folium.template import Template
+
+__all__ = ["ZoomStateJS"]
+
+
+class ZoomStateJS(folium.MacroElement):
+	"""
+	Update URL with current zoom/position.
+	"""
+
+	_template = Template(
+			"""
+		{% macro script(this, kwargs) %}
+			setupZoomState({{this._parent.get_name()}});
+		{% endmacro %}
+		""",
+			)
+
+	def __init__(self):
+		super().__init__()
+		self._name = "ZoomStateJS"
