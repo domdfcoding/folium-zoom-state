@@ -68,15 +68,17 @@ class ZoomStateJS(folium.MacroElement):
 
 
 
-class SubclassingTemplate:
+class SubclassingTemplate(Template):
+	base_template: Template
 
-	def __init__(self, base_template: Template, source: str):
+	def __new__(cls, source: str, base_template: Template):
+		self = super().__new__(cls, source)
 		self.base_template = base_template
-		self.override_template = Template(source)
+		return self
 
 	@property
 	def module(self) -> TemplateModule:
-		template_module = self.override_template.module
+		template_module = super().module
 		module_dict = template_module.__dict__
 
 		for macro in {"html", "header", "script"}:
@@ -87,8 +89,7 @@ class SubclassingTemplate:
 
 
 class ZoomStateMap(folium.Map):
-	_template = SubclassingTemplate(  # type: ignore[assignment]
-			folium.Map._template,
+	_template = SubclassingTemplate(
 			"""
 {% macro script(this, kwargs) %}
 	var mapOptions = {{this.options|tojavascript}};
@@ -125,4 +126,5 @@ class ZoomStateMap(folium.Map):
 
 {% endmacro %}
 """,
+			base_template=folium.Map._template,
 			)
