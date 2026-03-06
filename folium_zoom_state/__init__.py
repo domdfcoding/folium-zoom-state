@@ -73,7 +73,6 @@ class ZoomStateJS(folium.MacroElement):
 		self.js_script = get_js_script()
 
 
-
 class SubclassingTemplate(Template):
 	base_template: Template
 
