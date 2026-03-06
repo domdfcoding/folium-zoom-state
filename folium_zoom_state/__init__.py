@@ -34,9 +34,17 @@ __email__: str = "dominic@davis-foster.co.uk"
 
 # 3rd party
 import folium
+from domdf_python_tools.compat import importlib_resources
 from folium.template import Template
+from jinja2.environment import TemplateModule
 
 __all__ = ["ZoomStateJS"]
+
+
+def get_js_script() -> str:
+	script = importlib_resources.read_text("folium_zoom_state", "zoom_state.js")
+	script = script.replace("\nexport function", "\nfunction")
+	return '\n'.join([line for line in script.splitlines() if not line.startswith("//")])
 
 
 class ZoomStateJS(folium.MacroElement):
@@ -47,6 +55,7 @@ class ZoomStateJS(folium.MacroElement):
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
+			{{ this.js_script }}
 			setupZoomState({{this._parent.get_name()}});
 		{% endmacro %}
 		""",
@@ -55,3 +64,65 @@ class ZoomStateJS(folium.MacroElement):
 	def __init__(self):
 		super().__init__()
 		self._name = "ZoomStateJS"
+		self.js_script = get_js_script()
+
+
+
+class SubclassingTemplate:
+
+	def __init__(self, base_template: Template, source: str):
+		self.base_template = base_template
+		self.override_template = Template(source)
+
+	@property
+	def module(self) -> TemplateModule:
+		template_module = self.override_template.module
+		module_dict = template_module.__dict__
+
+		for macro in {"html", "header", "script"}:
+			if module_dict.get(macro, None) is None:
+				module_dict[macro] = self.base_template.module.__dict__.get(macro, None)
+
+		return template_module
+
+
+class ZoomStateMap(folium.Map):
+	_template = SubclassingTemplate(  # type: ignore[assignment]
+			folium.Map._template,
+			"""
+{% macro script(this, kwargs) %}
+	var mapOptions = {{this.options|tojavascript}};
+	var defaultZoom = mapOptions["zoom"] ?? 0;
+	var urlZoomState = zoomStateFromURL(defaultZoom, L.latLng({{ this.location|tojson }}));
+	mapOptions["zoom"] = urlZoomState["zoomLvl"]
+
+	var {{ this.get_name() }} = L.map(
+		{{ this.get_name()|tojson }},
+		{
+			center: urlZoomState["centre"],
+			crs: L.CRS.{{ this.crs }},
+			...mapOptions
+		}
+	);
+
+	{%- if this.control_scale %}
+	L.control.scale().addTo({{ this.get_name() }});
+	{%- endif %}
+
+	{%- if this.zoom_control_position %}
+	L.control.zoom( { position: {{ this.zoom_control|tojson }} } ).addTo({{ this.get_name() }});
+	{%- endif %}
+
+	{% if this.objects_to_stay_in_front %}
+	function objects_in_front() {
+		{%- for obj in this.objects_to_stay_in_front %}
+			{{ obj.get_name() }}.bringToFront();
+		{%- endfor %}
+	};
+	{{ this.get_name() }}.on("overlayadd", objects_in_front);
+	$(document).ready(objects_in_front);
+	{%- endif %}
+
+{% endmacro %}
+""",
+			)
