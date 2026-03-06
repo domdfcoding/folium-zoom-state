@@ -43,5 +43,5 @@ build: tsc
 licence-report:
 	npx license-report --only=prod --output html > licence-report.html
 
-swc: 
+swc:
 	swc compile src/zoom_state.ts --out-file folium_zoom_state/zoom_state.js

@@ -32,11 +32,17 @@ __license__: str = "MIT License"
 __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
 
+# stdlib
+from typing import TYPE_CHECKING
+
 # 3rd party
 import folium
 from domdf_python_tools.compat import importlib_resources
 from folium.template import Template
-from jinja2.environment import TemplateModule
+
+if TYPE_CHECKING:
+	# 3rd party
+	from jinja2.environment import TemplateModule
 
 __all__ = ["ZoomStateJS"]
 
@@ -77,7 +83,7 @@ class SubclassingTemplate(Template):
 		return self
 
 	@property
-	def module(self) -> TemplateModule:
+	def module(self) -> "TemplateModule":
 		template_module = super().module
 		module_dict = template_module.__dict__
 
