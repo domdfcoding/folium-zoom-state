@@ -60,23 +60,25 @@
 <script>
 
 
-	var mapOptions = {
+            var mapOptions = {
   "zoom": 10,
   "zoomControl": true,
   "preferCanvas": false,
 };
-	var defaultZoom = mapOptions["zoom"] ?? 0;
-	var urlZoomState = zoomStateFromURL(defaultZoom, L.latLng([45.5236, -122.675]));
-	mapOptions["zoom"] = urlZoomState["zoomLvl"]
+            var defaultZoom = mapOptions["zoom"] ?? 0;
+            var urlZoomState = zoomStateFromURL(defaultZoom, L.latLng([45.5236, -122.675]));
+            mapOptions["zoom"] = urlZoomState["zoomLvl"]
 
-	var map_6c1da53398685c25022001fb144b393e = L.map(
-		"map_6c1da53398685c25022001fb144b393e",
-		{
-			center: urlZoomState["centre"],
-			crs: L.CRS.EPSG3857,
-			...mapOptions
-		}
-	);
+            var map_6c1da53398685c25022001fb144b393e = L.map(
+                "map_6c1da53398685c25022001fb144b393e",
+                {
+                    center: urlZoomState["centre"],
+                    crs: L.CRS.EPSG3857,
+                    ...mapOptions
+
+                }
+            );
+
 
 
 
