@@ -34,7 +34,7 @@ python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
 license-key = "MIT"
 package = "folium_zoom_state"
-additional-files = [ "recursive-include folium_zoom_state/static *",]
+additional-files = [ "include folium_zoom_state/static/zoom_state.js",]
 
 [tool.mypy]
 python_version = "3.9"

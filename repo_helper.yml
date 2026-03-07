@@ -23,7 +23,10 @@ python_versions:
  - "3.13"
 
 manifest_additional:
- - recursive-include folium_zoom_state/static *
+ - include folium_zoom_state/static/zoom_state.js
 
 additional_ignore:
  - node_modules
+
+exclude_files:
+ - justfile
