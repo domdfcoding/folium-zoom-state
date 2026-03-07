@@ -34,7 +34,7 @@ __email__: str = "dominic@davis-foster.co.uk"
 
 # stdlib
 from random import Random
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 # 3rd party
 import folium
@@ -94,6 +94,30 @@ class ZoomStateJS(folium.MacroElement):
 		super().__init__()
 		self._name = "ZoomStateJS"
 		self.js_script = get_js_script()
+
+	def add_to(  # noqa: D102
+		self,
+		parent: folium.Element,
+		name: Optional[str] = None,
+		index: Optional[int] = None,
+		*,
+		embed_script: bool = True,
+	) -> "ZoomStateJS":
+		"""
+		Add the zoom state logic to the map.
+		
+		:param parent:
+		:param name:
+		:param index:
+		:param embed_script: Don't embed the bulk of the script, only the code to set up zoom state tracking.
+			This allows the javascript code to be included from a separate file.
+		"""
+
+		if not embed_script:
+			self.js_script = ''
+
+		super().add_to(parent, name, index)
+		return self
 
 
 class SubclassingTemplate(Template):

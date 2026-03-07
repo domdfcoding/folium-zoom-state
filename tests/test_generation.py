@@ -100,3 +100,15 @@ def test_custom_map(advanced_file_regression: AdvancedFileRegressionFixture):
 	root = m.get_root()
 	html = root.render()
 	advanced_file_regression.check(html, extension=".html")
+
+
+def test_no_embed(advanced_file_regression: AdvancedFileRegressionFixture):
+	set_branca_random_seed("ZOOM")
+
+	m = ZoomStateMap(location=(45.5236, -122.6750))
+	ZoomStateJS().add_to(m, name="my-zoom-state", embed_script=False)
+
+	root = m.get_root()
+	html = root.render()
+	advanced_file_regression.check(html, extension=".html")
+
