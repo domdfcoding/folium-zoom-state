@@ -154,40 +154,41 @@ class ZoomStateMap(folium.Map):
 
 	_template = SubclassingTemplate(
 			"""
-{% macro script(this, kwargs) %}
-	var mapOptions = {{this.options|tojavascript}};
-	var defaultZoom = mapOptions["zoom"] ?? 0;
-	var urlZoomState = zoomStateFromURL(defaultZoom, L.latLng({{ this.location|tojson }}));
-	mapOptions["zoom"] = urlZoomState["zoomLvl"]
+        {% macro script(this, kwargs) %}
+            var mapOptions = {{this.options|tojavascript}};
+            var defaultZoom = mapOptions["zoom"] ?? 0;
+            var urlZoomState = zoomStateFromURL(defaultZoom, L.latLng({{ this.location|tojson }}));
+            mapOptions["zoom"] = urlZoomState["zoomLvl"]
 
-	var {{ this.get_name() }} = L.map(
-		{{ this.get_name()|tojson }},
-		{
-			center: urlZoomState["centre"],
-			crs: L.CRS.{{ this.crs }},
-			...mapOptions
-		}
-	);
+            var {{ this.get_name() }} = L.map(
+                {{ this.get_name()|tojson }},
+                {
+                    center: urlZoomState["centre"],
+                    crs: L.CRS.{{ this.crs }},
+                    ...mapOptions
 
-	{%- if this.control_scale %}
-	L.control.scale().addTo({{ this.get_name() }});
-	{%- endif %}
+                }
+            );
 
-	{%- if this.zoom_control_position %}
-	L.control.zoom( { position: {{ this.zoom_control|tojson }} } ).addTo({{ this.get_name() }});
-	{%- endif %}
+            {%- if this.control_scale %}
+            L.control.scale().addTo({{ this.get_name() }});
+            {%- endif %}
 
-	{% if this.objects_to_stay_in_front %}
-	function objects_in_front() {
-		{%- for obj in this.objects_to_stay_in_front %}
-			{{ obj.get_name() }}.bringToFront();
-		{%- endfor %}
-	};
-	{{ this.get_name() }}.on("overlayadd", objects_in_front);
-	$(document).ready(objects_in_front);
-	{%- endif %}
+            {%- if this.zoom_control_position %}
+            L.control.zoom( { position: {{ this.zoom_control|tojson }} } ).addTo({{ this.get_name() }});
+            {%- endif %}
 
-{% endmacro %}
-""",
+            {% if this.objects_to_stay_in_front %}
+            function objects_in_front() {
+                {%- for obj in this.objects_to_stay_in_front %}
+                    {{ obj.get_name() }}.bringToFront();
+                {%- endfor %}
+            };
+            {{ this.get_name() }}.on("overlayadd", objects_in_front);
+            $(document).ready(objects_in_front);
+            {%- endif %}
+
+        {% endmacro %}
+        """,
 			base_template=folium.Map._template,
 			)
