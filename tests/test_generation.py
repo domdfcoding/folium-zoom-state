@@ -111,4 +111,3 @@ def test_no_embed(advanced_file_regression: AdvancedFileRegressionFixture):
 	root = m.get_root()
 	html = root.render()
 	advanced_file_regression.check(html, extension=".html")
-

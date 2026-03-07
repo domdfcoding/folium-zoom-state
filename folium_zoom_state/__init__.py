@@ -95,17 +95,17 @@ class ZoomStateJS(folium.MacroElement):
 		self._name = "ZoomStateJS"
 		self.js_script = get_js_script()
 
-	def add_to(  # noqa: D102
-		self,
-		parent: folium.Element,
-		name: Optional[str] = None,
-		index: Optional[int] = None,
-		*,
-		embed_script: bool = True,
-	) -> "ZoomStateJS":
+	def add_to(
+			self,
+			parent: folium.Element,
+			name: Optional[str] = None,
+			index: Optional[int] = None,
+			*,
+			embed_script: bool = True,
+			) -> "ZoomStateJS":
 		"""
 		Add the zoom state logic to the map.
-		
+
 		:param parent:
 		:param name:
 		:param index:
@@ -121,15 +121,22 @@ class ZoomStateJS(folium.MacroElement):
 
 
 class SubclassingTemplate(Template):
+	"""
+	Custom branca/folium template allowing for subclassing.
+
+	:param source: The template source.
+	:param base_template: The template "base class"
+	"""
+
 	base_template: Template
 
-	def __new__(cls, source: str, base_template: Template):
+	def __new__(cls, source: str, base_template: Template):  # noqa: D102
 		self = super().__new__(cls, source)
 		self.base_template = base_template
 		return self
 
 	@property
-	def module(self) -> "TemplateModule":
+	def module(self) -> "TemplateModule":  # noqa: D102
 		template_module = super().module
 		module_dict = template_module.__dict__
 
@@ -141,6 +148,10 @@ class SubclassingTemplate(Template):
 
 
 class ZoomStateMap(folium.Map):
+	"""
+	Custom folium map that restores zoom level and map position from URL parameters.
+	"""
+
 	_template = SubclassingTemplate(
 			"""
 {% macro script(this, kwargs) %}
