@@ -33,7 +33,8 @@ __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
 
 # stdlib
-from typing import TYPE_CHECKING
+from random import Random
+from typing import TYPE_CHECKING, Union
 
 # 3rd party
 import folium
@@ -44,10 +45,32 @@ if TYPE_CHECKING:
 	# 3rd party
 	from jinja2.environment import TemplateModule
 
-__all__ = ["ZoomStateJS"]
+__all__ = ["SubclassingTemplate", "ZoomStateJS", "ZoomStateMap", "get_js_script", "set_branca_random_seed"]
+
+
+def set_branca_random_seed(seed: Union[str, int]) -> None:
+	"""
+	Use a fixed random number generator seed for branca (affects element IDs e.g. folium's ``map_{id}``).
+
+	:param seed:
+	"""
+
+	# 3rd party
+	from branca import element  # nodep
+
+	rand = Random(seed)
+
+	def urandom(size: int) -> bytes:
+		return rand.randbytes(size)
+
+	element.urandom = urandom
 
 
 def get_js_script() -> str:
+	"""
+	Get the zoom state script as a string.
+	"""
+
 	script = importlib_resources.read_text("folium_zoom_state", "zoom_state.js")
 	script = script.replace("\nexport function", "\nfunction")
 	return '\n'.join([line for line in script.splitlines() if not line.startswith("//")])
@@ -71,7 +94,6 @@ class ZoomStateJS(folium.MacroElement):
 		super().__init__()
 		self._name = "ZoomStateJS"
 		self.js_script = get_js_script()
-
 
 
 class SubclassingTemplate(Template):
