@@ -45,7 +45,14 @@ if TYPE_CHECKING:
 	# 3rd party
 	from jinja2.environment import TemplateModule
 
-__all__ = ["SubclassingTemplate", "ZoomStateJS", "ZoomStateMap", "get_js_script", "set_branca_random_seed"]
+__all__ = [
+		"BasemapFromURL",
+		"SubclassingTemplate",
+		"ZoomStateJS",
+		"ZoomStateMap",
+		"get_js_script",
+		"set_branca_random_seed",
+		]
 
 
 def set_branca_random_seed(seed: Union[str, int]) -> None:
@@ -122,6 +129,28 @@ class ZoomStateJS(folium.MacroElement):
 
 		super().add_to(parent, name, index)
 		return self
+
+
+class BasemapFromURL(folium.MacroElement):
+	"""
+	Inject JavaScript to set basemap from URL parameter.
+
+	Add to map after adding the layer control.
+	"""
+
+	_template = Template(
+			"""
+		{% macro script(this, kwargs) %}
+			basemapFromURL({{this.default_basemap}}, {{this.layer_control.get_name()}}).addTo({{this._parent.get_name()}});
+		{% endmacro %}
+		""",
+			)
+
+	def __init__(self, default_basemap: str, layer_control: folium.LayerControl):
+		super().__init__()
+		self._name = "BasemapFromURL"
+		self.default_basemap = default_basemap
+		self.layer_control = layer_control
 
 
 class SubclassingTemplate(Template):
