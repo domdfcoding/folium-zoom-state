@@ -70,3 +70,34 @@ export function zoomStateFromURL (defaultZoom: number, defaultCentre: L.LatLng):
 
 	return { centre, zoomLvl };
 }
+
+interface layer {
+	layer: L.Layer
+	name: string
+}
+
+export function basemapFromURL (defaultBasemap: string, layerControl: L.Control.Layers): L.TileLayer {
+	const url = new URL(window.location.href);
+
+	const basemapLayers = Object.fromEntries(
+		/* @ts-expect-error _layers does exist but is private */
+		layerControl._layers.map(
+			(element: layer) => [element.name, element.layer]
+		)
+	);
+
+	if (url.searchParams.has('basemap')) {
+		const basemapName = url.searchParams.get('basemap') ?? defaultBasemap;
+		console.log(basemapName);
+
+		if (basemapName in basemapLayers) {
+			return basemapLayers[basemapName];
+		}
+	}
+
+	return basemapLayers[defaultBasemap];
+}
+
+export function setupBasemapState (map: L.Map): void {
+	map.on('baselayerchange', (e: L.LayersControlEvent) => updateQueryStringParam('basemap', e.name));
+}

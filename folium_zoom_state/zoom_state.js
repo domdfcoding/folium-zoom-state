@@ -58,3 +58,21 @@ export function zoomStateFromURL (defaultZoom, defaultCentre) {
 	}
 	return { centre, zoomLvl };
 }
+export function basemapFromURL (defaultBasemap, layerControl) {
+	let _a;
+	const url = new URL(window.location.href);
+	const basemapLayers = Object.fromEntries(
+		/* @ts-expect-error _layers does exist but is private */
+		layerControl._layers.map((element) => [element.name, element.layer]));
+	if (url.searchParams.has('basemap')) {
+		const basemapName = (_a = url.searchParams.get('basemap')) !== null && _a !== void 0 ? _a : defaultBasemap;
+		console.log(basemapName);
+		if (basemapName in basemapLayers) {
+			return basemapLayers[basemapName];
+		}
+	}
+	return basemapLayers[defaultBasemap];
+}
+export function setupBasemapState (map) {
+	map.on('baselayerchange', (e) => updateQueryStringParam('basemap', e.name));
+}
