@@ -33,44 +33,20 @@ __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
 
 # stdlib
-from random import Random
-from typing import TYPE_CHECKING, Optional, Union
+from typing import Optional
 
 # 3rd party
 import folium
+from domdf_folium_tools.template import SubclassingTemplate
 from domdf_python_tools.compat import importlib_resources
 from folium.template import Template
 
-if TYPE_CHECKING:
-	# 3rd party
-	from jinja2.environment import TemplateModule
-
 __all__ = [
 		"BasemapFromURL",
-		"SubclassingTemplate",
 		"ZoomStateJS",
 		"ZoomStateMap",
 		"get_js_script",
-		"set_branca_random_seed",
 		]
-
-
-def set_branca_random_seed(seed: Union[str, int]) -> None:
-	"""
-	Use a fixed random number generator seed for branca (affects element IDs e.g. folium's ``map_{id}``).
-
-	:param seed:
-	"""
-
-	# 3rd party
-	from branca import element  # nodep
-
-	rand = Random(seed)
-
-	def urandom(size: int) -> bytes:
-		return rand.randbytes(size)
-
-	element.urandom = urandom
 
 
 def get_js_script() -> str:
@@ -156,33 +132,6 @@ class BasemapFromURL(folium.MacroElement):
 		self._name = "BasemapFromURL"
 		self.default_basemap = default_basemap
 		self.layer_control = layer_control
-
-
-class SubclassingTemplate(Template):
-	"""
-	Custom branca/folium template allowing for subclassing.
-
-	:param source: The template source.
-	:param base_template: The template "base class"
-	"""
-
-	base_template: Template
-
-	def __new__(cls, source: str, base_template: Template):  # noqa: D102
-		self = super().__new__(cls, source)
-		self.base_template = base_template
-		return self
-
-	@property
-	def module(self) -> "TemplateModule":  # noqa: D102
-		template_module = super().module
-		module_dict = template_module.__dict__
-
-		for macro in {"html", "header", "script"}:
-			if module_dict.get(macro, None) is None:
-				module_dict[macro] = self.base_template.module.__dict__.get(macro, None)
-
-		return template_module
 
 
 class ZoomStateMap(folium.Map):

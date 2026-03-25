@@ -1,10 +1,11 @@
 # 3rd party
 import folium
 from coincidence.regressions import AdvancedFileRegressionFixture
+from domdf_folium_tools import set_branca_random_seed
 from folium.template import Template
 
 # this package
-from folium_zoom_state import ZoomStateJS, ZoomStateMap, set_branca_random_seed
+from folium_zoom_state import ZoomStateJS, ZoomStateMap
 
 
 def test_default_map(advanced_file_regression: AdvancedFileRegressionFixture):
