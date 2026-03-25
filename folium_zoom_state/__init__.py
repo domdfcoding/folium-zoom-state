@@ -86,6 +86,8 @@ def get_js_script() -> str:
 class ZoomStateJS(folium.MacroElement):
 	"""
 	Update URL with current zoom/position.
+
+	:param setup_basemap_state: If :py:obj:`True` will also update URL with current basemap name.
 	"""
 
 	_template = Template(
@@ -136,6 +138,9 @@ class BasemapFromURL(folium.MacroElement):
 	Inject JavaScript to set basemap from URL parameter.
 
 	Add to map after adding the layer control.
+
+	:param default_basemap: The name of the basemap to use by default.
+	:param layer_control: The layer control element.
 	"""
 
 	_template = Template(
