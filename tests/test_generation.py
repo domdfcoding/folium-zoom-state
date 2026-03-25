@@ -109,7 +109,8 @@ def test_basemap(advanced_file_regression: AdvancedFileRegressionFixture):
 	m = Map(location=(45.5236, -122.6750))
 	ZoomStateJS(setup_basemap_state=True).add_to(m)
 
-	layer_control = folium.LayerControl().add_to(m)
+	layer_control = folium.LayerControl()
+	layer_control.add_to(m)
 	BasemapFromURL("openstreetmap", layer_control).add_to(m)
 
 	root = m.get_root()
