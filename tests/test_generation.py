@@ -5,7 +5,7 @@ from domdf_folium_tools import set_branca_random_seed
 from folium.template import Template
 
 # this package
-from folium_zoom_state import ZoomStateJS, ZoomStateMap
+from folium_zoom_state import BasemapFromURL, ZoomStateJS, ZoomStateMap
 
 
 def test_default_map(advanced_file_regression: AdvancedFileRegressionFixture):
@@ -97,6 +97,20 @@ def test_custom_map(advanced_file_regression: AdvancedFileRegressionFixture):
 
 	m = Map(location=(45.5236, -122.6750))
 	ZoomStateJS().add_to(m)
+
+	root = m.get_root()
+	html = root.render()
+	advanced_file_regression.check(html, extension=".html")
+
+
+def test_basemap(advanced_file_regression: AdvancedFileRegressionFixture):
+	set_branca_random_seed("ZOOM")
+
+	m = Map(location=(45.5236, -122.6750))
+	ZoomStateJS(setup_basemap_state=True).add_to(m)
+
+	layer_control = folium.LayerControl().add_to(m)
+	BasemapFromURL("openstreetmap", layer_control).add_to(m)
 
 	root = m.get_root()
 	html = root.render()
