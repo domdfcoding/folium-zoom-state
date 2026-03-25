@@ -86,14 +86,18 @@ class ZoomStateJS(folium.MacroElement):
 		{% macro script(this, kwargs) %}
 			{{ this.js_script }}
 			setupZoomState({{this._parent.get_name()}});
+			{% if this.setup_basemap_state %}
+			setupBasemapState({{this._parent.get_name()}});
+			{% endif %}
 		{% endmacro %}
 		""",
 			)
 
-	def __init__(self):
+	def __init__(self, setup_basemap_state: bool = False):
 		super().__init__()
 		self._name = "ZoomStateJS"
 		self.js_script = get_js_script()
+		self.setup_basemap_state = setup_basemap_state
 
 	def add_to(
 			self,
