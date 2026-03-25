@@ -146,7 +146,7 @@ class BasemapFromURL(folium.MacroElement):
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
-			basemapFromURL({{this.default_basemap}}, {{this.layer_control.get_name()}}).addTo({{this._parent.get_name()}});
+			basemapFromURL("{{this.default_basemap}}", {{this.layer_control.get_name()}}).addTo({{this._parent.get_name()}});
 		{% endmacro %}
 		""",
 			)
