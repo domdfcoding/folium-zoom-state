@@ -5,7 +5,7 @@ copyright_years: '2026'
 author: 'Dominic Davis-Foster'
 email: 'dominic@davis-foster.co.uk'
 username: 'domdfcoding'
-version: '0.1.0b2'
+version: '0.1.0b3'
 license: 'MIT'
 short_desc: 'Folium plugin to preserve zoom level and map position when reloading
   or sharing URLs.'
