@@ -4,7 +4,7 @@ build-backend = "whey"
 
 [project]
 name = "folium-zoom-state"
-version = "0.1.0b1"
+version = "0.1.0b2"
 description = "Folium plugin to preserve zoom level and map position when reloading or sharing URLs."
 readme = "README.rst"
 keywords = []
