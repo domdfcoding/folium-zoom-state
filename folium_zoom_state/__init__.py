@@ -89,7 +89,7 @@ class ZoomStateJS(JSCSSMixin, folium.MacroElement):
 	default_js = [
 			(
 					"zoom_state_js",
-					f"https://cdn.jsdelivr.net/gh/domdfcoding/folium-zoom-state@v{__version__}/folium_zoom-state/zoom_state.min.js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/folium-zoom-state@v{__version__}/folium_zoom_state/zoom_state.min.js",
 					),
 			]
 

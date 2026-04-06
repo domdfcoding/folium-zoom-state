@@ -140,5 +140,5 @@ def test_cdn(advanced_file_regression: AdvancedFileRegressionFixture):
 
 	root = m.get_root()
 	html = root.render()
-	html = re.sub("folium-zoom-state@v.*/folium_zoom-state", "folium-zoom-state@v0.0.0/folium_zoom-state", html)
+	html = re.sub("folium-zoom-state@v.*/folium_zoom_state", "folium-zoom-state@v0.0.0/folium_zoom_state", html)
 	advanced_file_regression.check(html, extension=".html")
