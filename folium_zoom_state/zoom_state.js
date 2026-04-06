@@ -1,3 +1,4 @@
+'use strict';
 //
 //  zoom_state.js
 /*
@@ -24,13 +25,14 @@ Preserve zoom level and map position when reloading or sharing URLs
 //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 //
-export function updateQueryStringParam (key, value) {
+function updateQueryStringParam (key, value) {
 	const url = new URL(window.location.href);
 	url.searchParams.set(key, value.toString()); // Add or update the parameter
 	// window.history.pushState({}, null, url);
 	window.history.replaceState({}, '', url);
 }
-export function setupZoomState (map) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function setupZoomState (map) {
 	map.on('zoomend', function () {
 		const zoomLvl = map.getZoom();
 		updateQueryStringParam('zoom', zoomLvl);
@@ -41,7 +43,8 @@ export function setupZoomState (map) {
 		updateQueryStringParam('lng', centre.lng);
 	});
 }
-export function zoomStateFromURL (defaultZoom, defaultCentre) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function zoomStateFromURL (defaultZoom, defaultCentre) {
 	const url = new URL(window.location.href);
 	// let zoomLvl = map.getZoom();
 	let zoomLvl = defaultZoom;
@@ -58,7 +61,8 @@ export function zoomStateFromURL (defaultZoom, defaultCentre) {
 	}
 	return { centre, zoomLvl };
 }
-export function basemapFromURL (defaultBasemap, layerControl) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function basemapFromURL (defaultBasemap, layerControl) {
 	let _a;
 	const url = new URL(window.location.href);
 	const basemapLayers = Object.fromEntries(
@@ -73,6 +77,7 @@ export function basemapFromURL (defaultBasemap, layerControl) {
 	}
 	return basemapLayers[defaultBasemap];
 }
-export function setupBasemapState (map) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function setupBasemapState (map) {
 	map.on('baselayerchange', (e) => updateQueryStringParam('basemap', e.name));
 }

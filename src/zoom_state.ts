@@ -25,14 +25,15 @@ Preserve zoom level and map position when reloading or sharing URLs
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-export function updateQueryStringParam (key: string, value: number|string): void {
+function updateQueryStringParam (key: string, value: number|string): void {
 	const url = new URL(window.location.href);
 	url.searchParams.set(key, value.toString()); // Add or update the parameter
 	// window.history.pushState({}, null, url);
 	window.history.replaceState({}, '', url);
 }
 
-export function setupZoomState (map: L.Map): void {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function setupZoomState (map: L.Map): void {
 	map.on('zoomend', function () {
 		const zoomLvl: number = map.getZoom();
 		updateQueryStringParam('zoom', zoomLvl);
@@ -50,7 +51,9 @@ interface IZoomState {
 	zoomLvl: number;
  }
 
-export function zoomStateFromURL (defaultZoom: number, defaultCentre: L.LatLng): IZoomState {
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function zoomStateFromURL (defaultZoom: number, defaultCentre: L.LatLng): IZoomState {
 	const url = new URL(window.location.href);
 
 	// let zoomLvl = map.getZoom();
@@ -76,7 +79,8 @@ interface layer {
 	name: string
 }
 
-export function basemapFromURL (defaultBasemap: string, layerControl: L.Control.Layers): L.TileLayer {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function basemapFromURL (defaultBasemap: string, layerControl: L.Control.Layers): L.TileLayer {
 	const url = new URL(window.location.href);
 
 	const basemapLayers = Object.fromEntries(
@@ -98,6 +102,7 @@ export function basemapFromURL (defaultBasemap: string, layerControl: L.Control.
 	return basemapLayers[defaultBasemap];
 }
 
-export function setupBasemapState (map: L.Map): void {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function setupBasemapState (map: L.Map): void {
 	map.on('baselayerchange', (e: L.LayersControlEvent) => updateQueryStringParam('basemap', e.name));
 }
