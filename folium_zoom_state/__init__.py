@@ -32,18 +32,18 @@ __license__: str = "MIT License"
 __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
 
-# stdlib
-from typing import Optional
-
 # 3rd party
 import folium
 from domdf_folium_tools.template import SubclassingTemplate
 from domdf_python_tools.compat import importlib_resources
+from folium.elements import JSCSSMixin
 from folium.template import Template
 
 __all__ = [
 		"BasemapFromURL",
 		"ZoomStateJS",
+		"ZoomStateJSEmbedded",
+		"ZoomStateJSExternal",
 		"ZoomStateMap",
 		"get_js_script",
 		]
@@ -59,9 +59,11 @@ def get_js_script() -> str:
 	return '\n'.join([line for line in script.splitlines() if not line.startswith("//")])
 
 
-class ZoomStateJS(folium.MacroElement):
+class ZoomStateJS(JSCSSMixin, folium.MacroElement):
 	"""
 	Update URL with current zoom/position.
+
+	Javascript code is loaded from the jsdelivr cdn.
 
 	:param setup_basemap_state: If :py:obj:`True` will also update URL with current basemap name.
 	"""
@@ -81,32 +83,40 @@ class ZoomStateJS(folium.MacroElement):
 	def __init__(self, setup_basemap_state: bool = False):
 		super().__init__()
 		self._name = "ZoomStateJS"
-		self.js_script = get_js_script()
+		self.js_script = ''
 		self.setup_basemap_state = setup_basemap_state
 
-	def add_to(
-			self,
-			parent: folium.Element,
-			name: Optional[str] = None,
-			index: Optional[int] = None,
-			*,
-			embed_script: bool = True,
-			) -> "ZoomStateJS":
-		"""
-		Add the zoom state logic to the map.
+	default_js = [
+			(
+					"zoom_state_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/folium-zoom-state@v{__version__}/folium_zoom-state/zoom_state.min.js",
+					),
+			]
 
-		:param parent:
-		:param name:
-		:param index:
-		:param embed_script: Don't embed the bulk of the script, only the code to set up zoom state tracking.
-			This allows the javascript code to be included from a separate file.
-		"""
 
-		if not embed_script:
-			self.js_script = ''
+class ZoomStateJSExternal(ZoomStateJS):
+	"""
+	Update URL with current zoom/position.
 
-		super().add_to(parent, name, index)
-		return self
+	Javascript code is not embedded, to allow loading it from an external file.
+	Obtain the code with :func:`~.get_js_script` or copy the bundled ``zoom_state.js`` file.
+
+	:param setup_basemap_state: If :py:obj:`True` will also update URL with current basemap name.
+	"""
+
+	default_js = []
+
+
+class ZoomStateJSEmbedded(ZoomStateJSExternal):
+	"""
+	Update URL with current zoom/position.
+
+	:param setup_basemap_state: If :py:obj:`True` will also update URL with current basemap name.
+	"""
+
+	def __init__(self, setup_basemap_state: bool = False):
+		super().__init__(setup_basemap_state)
+		self.js_script = get_js_script()
 
 
 class BasemapFromURL(folium.MacroElement):

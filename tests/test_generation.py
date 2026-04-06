@@ -1,3 +1,6 @@
+# stdlib
+import re
+
 # 3rd party
 import folium
 from coincidence.regressions import AdvancedFileRegressionFixture
@@ -5,14 +8,14 @@ from domdf_folium_tools import set_branca_random_seed
 from folium.template import Template
 
 # this package
-from folium_zoom_state import BasemapFromURL, ZoomStateJS, ZoomStateMap
+from folium_zoom_state import BasemapFromURL, ZoomStateJS, ZoomStateJSEmbedded, ZoomStateJSExternal, ZoomStateMap
 
 
 def test_default_map(advanced_file_regression: AdvancedFileRegressionFixture):
 	set_branca_random_seed("ZOOM")
 
 	m = ZoomStateMap(location=(45.5236, -122.6750))
-	ZoomStateJS().add_to(m)
+	ZoomStateJSEmbedded().add_to(m)
 
 	root = m.get_root()
 	html = root.render()
@@ -96,7 +99,7 @@ def test_custom_map(advanced_file_regression: AdvancedFileRegressionFixture):
 	set_branca_random_seed("ZOOM")
 
 	m = Map(location=(45.5236, -122.6750))
-	ZoomStateJS().add_to(m)
+	ZoomStateJSEmbedded().add_to(m)
 
 	root = m.get_root()
 	html = root.render()
@@ -107,7 +110,7 @@ def test_basemap(advanced_file_regression: AdvancedFileRegressionFixture):
 	set_branca_random_seed("ZOOM")
 
 	m = Map(location=(45.5236, -122.6750))
-	ZoomStateJS(setup_basemap_state=True).add_to(m)
+	ZoomStateJSEmbedded(setup_basemap_state=True).add_to(m)
 
 	layer_control = folium.LayerControl()
 	layer_control.add_to(m)
@@ -122,8 +125,20 @@ def test_no_embed(advanced_file_regression: AdvancedFileRegressionFixture):
 	set_branca_random_seed("ZOOM")
 
 	m = ZoomStateMap(location=(45.5236, -122.6750))
-	ZoomStateJS().add_to(m, name="my-zoom-state", embed_script=False)
+	ZoomStateJSExternal().add_to(m, name="my-zoom-state")
 
 	root = m.get_root()
 	html = root.render()
+	advanced_file_regression.check(html, extension=".html")
+
+
+def test_cdn(advanced_file_regression: AdvancedFileRegressionFixture):
+	set_branca_random_seed("ZOOM")
+
+	m = ZoomStateMap(location=(45.5236, -122.6750))
+	ZoomStateJS().add_to(m, name="my-zoom-state")
+
+	root = m.get_root()
+	html = root.render()
+	html = re.sub("folium-zoom-state@v.*/folium_zoom-state", "folium-zoom-state@v0.0.0/folium_zoom-state", html)
 	advanced_file_regression.check(html, extension=".html")
