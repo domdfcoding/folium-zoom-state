@@ -51,7 +51,6 @@ interface IZoomState {
 	zoomLvl: number;
  }
 
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function zoomStateFromURL (defaultZoom: number, defaultCentre: L.LatLng): IZoomState {
 	const url = new URL(window.location.href);
