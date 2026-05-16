@@ -5,10 +5,19 @@ import re
 import folium
 from coincidence.regressions import AdvancedFileRegressionFixture
 from domdf_folium_tools import set_branca_random_seed
+from domdf_folium_tools.elements import NLSTileLayer, add_to
 from folium.template import Template
 
 # this package
-from folium_zoom_state import BasemapFromURL, OverlayState, ZoomStateJS, ZoomStateJSEmbedded, ZoomStateJSExternal, ZoomStateMap
+from folium_zoom_state import (
+		BasemapFromURL,
+		BasemapState,
+		OverlayState,
+		ZoomStateJS,
+		ZoomStateJSEmbedded,
+		ZoomStateJSExternal,
+		ZoomStateMap
+		)
 
 
 def test_default_map(advanced_file_regression: AdvancedFileRegressionFixture):
@@ -151,8 +160,36 @@ def test_overlay_state(advanced_file_regression: AdvancedFileRegressionFixture):
 	folium.FeatureGroup("group1").add_to(m)
 	folium.FeatureGroup("group2").add_to(m)
 	folium.FeatureGroup("group3", show=False).add_to(m)
-	lc = folium.LayerControl().add_to(m)
+	lc = add_to(folium.LayerControl(), m, "test")
 	OverlayState(lc).add_to(m)
+
+	root = m.get_root()
+	html = root.render()
+	html = re.sub("folium-zoom-state@v.*/folium_zoom_state", "folium-zoom-state@v0.0.0/folium_zoom_state", html)
+	advanced_file_regression.check(html, extension=".html")
+
+
+def test_basemap_state(advanced_file_regression: AdvancedFileRegressionFixture):
+	set_branca_random_seed("ZOOM")
+
+	m = folium.Map(location=(45.5236, -122.6750))
+
+	NLSTileLayer(
+			"OS 1:10,000 1949-1972",
+			"https://geo.nls.uk/mapdata3/os/britain10knationalgridnew/{z}/{x}/{y}.png",
+			max_native_zoom=16,
+			show=False,
+			).add_to(m)
+
+	NLSTileLayer(
+			"OS 1:1,250 1949-1975",
+			"https://geo.nls.uk/maps/os/1250_B_2eng/{z}/{x}/{y}.png",
+			max_native_zoom=20,
+			show=False,
+			).add_to(m)
+
+	lc = add_to(folium.LayerControl(), m, "test")
+	BasemapState("OpenStreetMap", lc).add_to(m)
 
 	root = m.get_root()
 	html = root.render()

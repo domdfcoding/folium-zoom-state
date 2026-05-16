@@ -98,38 +98,47 @@
             tile_layer_6d400c2db0cc2dab3fd7d0b4735ee0b4.addTo(map_6c1da53398685c25022001fb144b393e);
 
 
-            var feature_group_2ce8b0c1183bf93e04346314f64cd03b = L.featureGroup(
+            var tile_layer_2ce8b0c1183bf93e04346314f64cd03b = L.tileLayer(
+                "https://geo.nls.uk/mapdata3/os/britain10knationalgridnew/{z}/{x}/{y}.png",
                 {
+  "minZoom": 1,
+  "maxZoom": 20,
+  "maxNativeZoom": 16,
+  "noWrap": false,
+  "attribution": "OS 1:10,000 1949-1972 | \u003ca href=\u0027https://maps.nls.uk\u0027\u003emaps.nls.uk\u003c/a\u003e | CC-BY",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
 }
+
             );
 
 
-            feature_group_2ce8b0c1183bf93e04346314f64cd03b.addTo(map_6c1da53398685c25022001fb144b393e);
-
-
-            var feature_group_6d0877861e09adc4b38ec65d7095e934 = L.featureGroup(
+            var tile_layer_6d0877861e09adc4b38ec65d7095e934 = L.tileLayer(
+                "https://geo.nls.uk/maps/os/1250_B_2eng/{z}/{x}/{y}.png",
                 {
+  "minZoom": 1,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "OS 1:1,250 1949-1975 | \u003ca href=\u0027https://maps.nls.uk\u0027\u003emaps.nls.uk\u003c/a\u003e | CC-BY",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
 }
-            );
 
-
-            feature_group_6d0877861e09adc4b38ec65d7095e934.addTo(map_6c1da53398685c25022001fb144b393e);
-
-
-            var feature_group_e8e452d00b759cd88617f75ce94bf13e = L.featureGroup(
-                {
-}
             );
 
 
             var layer_control_test_layers = {
                 base_layers : {
                     "openstreetmap" : tile_layer_6d400c2db0cc2dab3fd7d0b4735ee0b4,
+                    "OS 1:10,000 1949-1972" : tile_layer_2ce8b0c1183bf93e04346314f64cd03b,
+                    "OS 1:1,250 1949-1975" : tile_layer_6d0877861e09adc4b38ec65d7095e934,
                 },
                 overlays :  {
-                    "group1" : feature_group_2ce8b0c1183bf93e04346314f64cd03b,
-                    "group2" : feature_group_6d0877861e09adc4b38ec65d7095e934,
-                    "group3" : feature_group_e8e452d00b759cd88617f75ce94bf13e,
                 },
             };
             let layer_control_test = L.control.layers(
@@ -144,9 +153,9 @@
 
 
 
-            const overlayState = new OverlayState(map_6c1da53398685c25022001fb144b393e, layer_control_test, "overlays")
-            overlayState.fromURL("110")
-            overlayState.setup();
+            const basemapState = new BasemapState(map_6c1da53398685c25022001fb144b393e, layer_control_test, "basemap")
+            basemapState.fromURL("OpenStreetMap").addTo(map_6c1da53398685c25022001fb144b393e)
+            basemapState.setup();
 
 </script>
 </html>
