@@ -32,24 +32,44 @@ function updateQueryStringParam (key: string, value: number|string): void {
 	window.history.replaceState({}, '', url);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setupZoomState (map: L.Map): void {
-	map.on('zoomend', function () {
-		const zoomLvl: number = map.getZoom();
-		updateQueryStringParam('zoom', zoomLvl);
-	});
-
-	map.on('moveend', function () {
-		const centre = map.getCenter();
-		updateQueryStringParam('lat', centre.lat);
-		updateQueryStringParam('lng', centre.lng);
-	});
-}
-
 interface IZoomState {
 	centre: L.LatLng;
 	zoomLvl: number;
  }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class ZoomState {
+	map: L.Map;
+
+	constructor (map: L.Map) {
+		this.map = map;
+	}
+
+	onZoomEnd () {
+		const zoomLvl: number = this.map.getZoom();
+		updateQueryStringParam('zoom', zoomLvl);
+	}
+
+	onMoveEnd () {
+		const centre = this.map.getCenter();
+		updateQueryStringParam('lat', centre.lat);
+		updateQueryStringParam('lng', centre.lng);
+	}
+
+	setup () {
+		this.map.on('zoomend', this.onZoomEnd, this);
+		this.map.on('moveend', this.onMoveEnd, this);
+	}
+
+	fromURL (defaultZoom: number, defaultCentre: L.LatLng): IZoomState {
+		return zoomStateFromURL(defaultZoom, defaultCentre);
+	}
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function setupZoomState (map: L.Map): void {
+	new ZoomState(map).setup();
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function zoomStateFromURL (defaultZoom: number, defaultCentre: L.LatLng): IZoomState {
@@ -77,6 +97,25 @@ interface layer {
 	layer: L.Layer
 	name: string
 	overlay?: boolean | undefined
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class BasemapState {
+	map: L.Map;
+	layerControl: L.Control.Layers;
+
+	constructor (map: L.Map, layerControl: L.Control.Layers) {
+		this.map = map;
+		this.layerControl = layerControl;
+	}
+
+	fromURL (defaultBasemap: string): L.TileLayer {
+		return basemapFromURL(defaultBasemap, this.layerControl);
+	}
+
+	setup (): void {
+		setupBasemapState(this.map);
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

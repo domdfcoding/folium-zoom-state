@@ -32,16 +32,34 @@ function updateQueryStringParam (key, value) {
 	window.history.replaceState({}, '', url);
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setupZoomState (map) {
-	map.on('zoomend', function () {
-		const zoomLvl = map.getZoom();
+class ZoomState {
+	constructor (map) {
+		this.map = map;
+	}
+
+	onZoomEnd () {
+		const zoomLvl = this.map.getZoom();
 		updateQueryStringParam('zoom', zoomLvl);
-	});
-	map.on('moveend', function () {
-		const centre = map.getCenter();
+	}
+
+	onMoveEnd () {
+		const centre = this.map.getCenter();
 		updateQueryStringParam('lat', centre.lat);
 		updateQueryStringParam('lng', centre.lng);
-	});
+	}
+
+	setup () {
+		this.map.on('zoomend', this.onZoomEnd, this);
+		this.map.on('moveend', this.onMoveEnd, this);
+	}
+
+	fromURL (defaultZoom, defaultCentre) {
+		return zoomStateFromURL(defaultZoom, defaultCentre);
+	}
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function setupZoomState (map) {
+	new ZoomState(map).setup();
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function zoomStateFromURL (defaultZoom, defaultCentre) {
@@ -60,6 +78,21 @@ function zoomStateFromURL (defaultZoom, defaultCentre) {
 		centre.lng = parseFloat(url.searchParams.get('lng'));
 	}
 	return { centre, zoomLvl };
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class BasemapState {
+	constructor (map, layerControl) {
+		this.map = map;
+		this.layerControl = layerControl;
+	}
+
+	fromURL (defaultBasemap) {
+		return basemapFromURL(defaultBasemap, this.layerControl);
+	}
+
+	setup () {
+		setupBasemapState(this.map);
+	}
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function basemapFromURL (defaultBasemap, layerControl) {
