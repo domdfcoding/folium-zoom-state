@@ -37,16 +37,20 @@ import folium
 from domdf_folium_tools.template import SubclassingTemplate
 from domdf_python_tools.compat import importlib_resources
 from folium.elements import JSCSSMixin
+from folium.map import Layer
 from folium.template import Template
 
 __all__ = [
 		"BasemapFromURL",
+		"OverlayState",
 		"ZoomStateJS",
 		"ZoomStateJSEmbedded",
 		"ZoomStateJSExternal",
 		"ZoomStateMap",
 		"get_js_script",
 		]
+
+# TODO: allow variable names to be customised
 
 
 def get_js_script() -> str:
@@ -142,6 +146,57 @@ class BasemapFromURL(folium.MacroElement):
 		self._name = "BasemapFromURL"
 		self.default_basemap = default_basemap
 		self.layer_control = layer_control
+
+
+class OverlayState(folium.MacroElement):
+	"""
+	Inject JavaScript to track and set overlay layers from URL parameter.
+
+	Add to map after adding the layer control.
+
+	:param layer_control: The layer control element.
+	"""
+
+	default_js = [
+			(
+					"zoom_state_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/folium-zoom-state@v{__version__}/folium_zoom_state/zoom_state.min.js",
+					),
+			]
+
+	_template = Template(
+			"""
+		{% macro script(this, kwargs) %}
+			const overlayState = new OverlayState({{this._parent.get_name()}}, {{this.layer_control.get_name()}})
+			overlayState.fromURL({{this._default_overlays_bits|tojson}})
+			overlayState.setup();
+		{% endmacro %}
+		""".replace('\t', "    "),
+			)
+
+	def __init__(self, layer_control: folium.LayerControl):
+		super().__init__()
+		self._name = "OverlayState"
+		self.layer_control = layer_control
+
+	def render(self, **kwargs) -> None:  # type: ignore[override]  # False positive  # noqa: D102
+
+		bits = ''
+
+		assert self.layer_control._parent is not None
+
+		for item in self.layer_control._parent._children.values():
+			if not isinstance(item, Layer) or not item.control or not item.overlay:
+				continue
+
+			if item.show:
+				bits += '1'
+			else:
+				bits += '0'
+
+		self._default_overlays_bits = bits
+
+		super().render(**kwargs)
 
 
 class ZoomStateMap(folium.Map):

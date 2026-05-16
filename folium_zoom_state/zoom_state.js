@@ -81,3 +81,57 @@ function basemapFromURL (defaultBasemap, layerControl) {
 function setupBasemapState (map) {
 	map.on('baselayerchange', (e) => updateQueryStringParam('basemap', e.name));
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class OverlayState {
+	constructor (map, layerControl) {
+		this.map = map;
+		this.layerControl = layerControl;
+	}
+
+	getOverlays () {
+		const overlays = [];
+		/* @ts-expect-error _layers does exist but is private */
+		this.layerControl._layers.forEach((layer) => {
+			if (layer.overlay) {
+				overlays.push(layer.layer);
+			}
+		});
+		return overlays;
+	}
+
+	updateOverlayParams () {
+		const overlays = this.getOverlays();
+		let bits = '';
+		overlays.forEach((layer) => {
+			if (this.map.hasLayer(layer)) {
+				bits += '1';
+			} else {
+				bits += '0';
+			}
+		});
+		console.log('Overlay bits:', bits);
+		updateQueryStringParam('overlays', bits);
+	}
+
+	setup () {
+		this.map.on('overlayadd', this.updateOverlayParams, this);
+		this.map.on('overlayremove', this.updateOverlayParams, this);
+	}
+
+	fromURL (defaultOverlays) {
+		let _a;
+		const url = new URL(window.location.href);
+		const bits = (_a = url.searchParams.get('overlays')) !== null && _a !== void 0 ? _a : defaultOverlays;
+		console.log('Overlay bits from URL:', bits);
+		const overlays = this.getOverlays();
+		overlays.forEach((layer, index) => {
+			console.log(bits.charAt(index));
+			if ((bits.charAt(index) || '1') === '1') {
+				layer.addTo(this.map);
+			} else {
+				layer.removeFrom(this.map);
+				// TODO: assert this.map.hasLayer(layer) False
+			}
+		});
+	}
+}

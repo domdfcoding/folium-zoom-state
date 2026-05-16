@@ -76,6 +76,7 @@ function zoomStateFromURL (defaultZoom: number, defaultCentre: L.LatLng): IZoomS
 interface layer {
 	layer: L.Layer
 	name: string
+	overlay?: boolean | undefined
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -104,4 +105,67 @@ function basemapFromURL (defaultBasemap: string, layerControl: L.Control.Layers)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function setupBasemapState (map: L.Map): void {
 	map.on('baselayerchange', (e: L.LayersControlEvent) => updateQueryStringParam('basemap', e.name));
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class OverlayState {
+	map: L.Map;
+	layerControl: L.Control.Layers;
+
+	constructor (map: L.Map, layerControl: L.Control.Layers) {
+		this.map = map;
+		this.layerControl = layerControl;
+	}
+
+	getOverlays (): L.Layer[] {
+		const overlays: L.Layer[] = [];
+
+		/* @ts-expect-error _layers does exist but is private */
+		this.layerControl._layers.forEach((layer: layer) => {
+			if (layer.overlay) {
+				overlays.push(layer.layer);
+			}
+		});
+
+		return overlays;
+	}
+
+	updateOverlayParams (): void {
+		const overlays = this.getOverlays();
+
+		let bits: string = '';
+		overlays.forEach((layer) => {
+			if (this.map.hasLayer(layer)) {
+				bits += '1';
+			} else {
+				bits += '0';
+			}
+		});
+
+		console.log('Overlay bits:', bits);
+		updateQueryStringParam('overlays', bits);
+	}
+
+	setup (): void {
+		this.map.on('overlayadd', this.updateOverlayParams, this);
+		this.map.on('overlayremove', this.updateOverlayParams, this);
+	}
+
+	fromURL (defaultOverlays: string): void {
+		const url = new URL(window.location.href);
+		const bits = url.searchParams.get('overlays') ?? defaultOverlays;
+		console.log('Overlay bits from URL:', bits);
+
+		const overlays = this.getOverlays();
+
+		overlays.forEach((layer, index) => {
+			console.log(bits.charAt(index));
+			if ((bits.charAt(index) || '1') === '1') {
+				layer.addTo(this.map);
+			} else {
+				layer.removeFrom(this.map);
+				// TODO: assert this.map.hasLayer(layer) False
+			}
+		});
+	}
 }
