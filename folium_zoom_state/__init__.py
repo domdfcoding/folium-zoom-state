@@ -70,6 +70,7 @@ class ZoomStateJS(JSCSSMixin, folium.MacroElement):
 	Javascript code is loaded from the jsdelivr cdn.
 
 	:param setup_basemap_state: If :py:obj:`True` will also update URL with current basemap name.
+	:param basemap_state_param_name: The URL query parameter to use for tracking basemap state.
 	"""
 
 	_template = Template(
@@ -78,17 +79,18 @@ class ZoomStateJS(JSCSSMixin, folium.MacroElement):
 			{{ this.js_script }}
 			setupZoomState({{this._parent.get_name()}});
 			{% if this.setup_basemap_state %}
-			setupBasemapState({{this._parent.get_name()}});
+			setupBasemapState({{this._parent.get_name()}}, {{this.basemap_state_param_name|tojson}});
 			{% endif %}
 		{% endmacro %}
 		""",
 			)
 
-	def __init__(self, setup_basemap_state: bool = False):
+	def __init__(self, setup_basemap_state: bool = False, basemap_state_param_name: str = "basemap"):
 		super().__init__()
 		self._name = "ZoomStateJS"
 		self.js_script = ''
 		self.setup_basemap_state = setup_basemap_state
+		self.basemap_state_param_name = basemap_state_param_name
 
 	default_js = [
 			(
@@ -131,6 +133,7 @@ class BasemapFromURL(folium.MacroElement):
 
 	:param default_basemap: The name of the basemap to use by default.
 	:param layer_control: The layer control element.
+	:param param_name: The URL query parameter to use.
 	"""
 
 	default_js = [
@@ -143,16 +146,17 @@ class BasemapFromURL(folium.MacroElement):
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
-			basemapFromURL("{{this.default_basemap}}", {{this.layer_control.get_name()}}).addTo({{this._parent.get_name()}});
+			basemapFromURL("{{this.default_basemap}}", {{this.layer_control.get_name()}}, {{this.param_name|tojson}}).addTo({{this._parent.get_name()}});
 		{% endmacro %}
 		""",
 			)
 
-	def __init__(self, default_basemap: str, layer_control: folium.LayerControl):
+	def __init__(self, default_basemap: str, layer_control: folium.LayerControl, param_name: str = "basemap"):
 		super().__init__()
 		self._name = "BasemapFromURL"
 		self.default_basemap = default_basemap
 		self.layer_control = layer_control
+		self.param_name = param_name
 
 
 class OverlayState(folium.MacroElement):
@@ -162,6 +166,7 @@ class OverlayState(folium.MacroElement):
 	Add to map after adding the layer control.
 
 	:param layer_control: The layer control element.
+	:param param_name: The URL query parameter to use.
 	"""
 
 	default_js = [
@@ -174,17 +179,18 @@ class OverlayState(folium.MacroElement):
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
-			const overlayState = new OverlayState({{this._parent.get_name()}}, {{this.layer_control.get_name()}})
+			const overlayState = new OverlayState({{this._parent.get_name()}}, {{this.layer_control.get_name()}}, {{this.param_name|tojson}})
 			overlayState.fromURL({{this._default_overlays_bits|tojson}})
 			overlayState.setup();
 		{% endmacro %}
 		""".replace('\t', "    "),
 			)
 
-	def __init__(self, layer_control: folium.LayerControl):
+	def __init__(self, layer_control: folium.LayerControl, param_name: str = "overlays"):
 		super().__init__()
 		self._name = "OverlayState"
 		self.layer_control = layer_control
+		self.param_name = param_name
 
 	def render(self, **kwargs) -> None:  # type: ignore[override]  # False positive  # noqa: D102
 

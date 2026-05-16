@@ -81,28 +81,29 @@ function zoomStateFromURL (defaultZoom, defaultCentre) {
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class BasemapState {
-	constructor (map, layerControl) {
+	constructor (map, layerControl, paramName = 'basemap') {
 		this.map = map;
 		this.layerControl = layerControl;
+		this.paramName = paramName;
 	}
 
 	fromURL (defaultBasemap) {
-		return basemapFromURL(defaultBasemap, this.layerControl);
+		return basemapFromURL(defaultBasemap, this.layerControl, this.paramName);
 	}
 
 	setup () {
-		setupBasemapState(this.map);
+		setupBasemapState(this.map, this.paramName);
 	}
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function basemapFromURL (defaultBasemap, layerControl) {
+function basemapFromURL (defaultBasemap, layerControl, paramName = 'basemap') {
 	let _a;
 	const url = new URL(window.location.href);
 	const basemapLayers = Object.fromEntries(
 		/* @ts-expect-error _layers does exist but is private */
 		layerControl._layers.map((element) => [element.name, element.layer]));
-	if (url.searchParams.has('basemap')) {
-		const basemapName = (_a = url.searchParams.get('basemap')) !== null && _a !== void 0 ? _a : defaultBasemap;
+	if (url.searchParams.has(paramName)) {
+		const basemapName = (_a = url.searchParams.get(paramName)) !== null && _a !== void 0 ? _a : defaultBasemap;
 		console.log(basemapName);
 		if (basemapName in basemapLayers) {
 			return basemapLayers[basemapName];
@@ -111,14 +112,15 @@ function basemapFromURL (defaultBasemap, layerControl) {
 	return basemapLayers[defaultBasemap];
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setupBasemapState (map) {
-	map.on('baselayerchange', (e) => updateQueryStringParam('basemap', e.name));
+function setupBasemapState (map, paramName = 'basemap') {
+	map.on('baselayerchange', (e) => updateQueryStringParam(paramName, e.name));
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class OverlayState {
-	constructor (map, layerControl) {
+	constructor (map, layerControl, paramName = 'overlays') {
 		this.map = map;
 		this.layerControl = layerControl;
+		this.paramName = paramName;
 	}
 
 	getOverlays () {
@@ -143,7 +145,7 @@ class OverlayState {
 			}
 		});
 		console.log('Overlay bits:', bits);
-		updateQueryStringParam('overlays', bits);
+		updateQueryStringParam(this.paramName, bits);
 	}
 
 	setup () {
@@ -154,7 +156,7 @@ class OverlayState {
 	fromURL (defaultOverlays) {
 		let _a;
 		const url = new URL(window.location.href);
-		const bits = (_a = url.searchParams.get('overlays')) !== null && _a !== void 0 ? _a : defaultOverlays;
+		const bits = (_a = url.searchParams.get(this.paramName)) !== null && _a !== void 0 ? _a : defaultOverlays;
 		console.log('Overlay bits from URL:', bits);
 		const overlays = this.getOverlays();
 		overlays.forEach((layer, index) => {

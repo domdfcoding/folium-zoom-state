@@ -103,23 +103,29 @@ interface layer {
 class BasemapState {
 	map: L.Map;
 	layerControl: L.Control.Layers;
+	paramName: string;
 
-	constructor (map: L.Map, layerControl: L.Control.Layers) {
+	constructor (map: L.Map, layerControl: L.Control.Layers, paramName: string = 'basemap') {
 		this.map = map;
 		this.layerControl = layerControl;
+		this.paramName = paramName;
 	}
 
 	fromURL (defaultBasemap: string): L.TileLayer {
-		return basemapFromURL(defaultBasemap, this.layerControl);
+		return basemapFromURL(defaultBasemap, this.layerControl, this.paramName);
 	}
 
 	setup (): void {
-		setupBasemapState(this.map);
+		setupBasemapState(this.map, this.paramName);
 	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function basemapFromURL (defaultBasemap: string, layerControl: L.Control.Layers): L.TileLayer {
+function basemapFromURL (
+	defaultBasemap: string,
+	layerControl: L.Control.Layers,
+	paramName: string = 'basemap'
+): L.TileLayer {
 	const url = new URL(window.location.href);
 
 	const basemapLayers = Object.fromEntries(
@@ -129,8 +135,8 @@ function basemapFromURL (defaultBasemap: string, layerControl: L.Control.Layers)
 		)
 	);
 
-	if (url.searchParams.has('basemap')) {
-		const basemapName = url.searchParams.get('basemap') ?? defaultBasemap;
+	if (url.searchParams.has(paramName)) {
+		const basemapName = url.searchParams.get(paramName) ?? defaultBasemap;
 		console.log(basemapName);
 
 		if (basemapName in basemapLayers) {
@@ -142,18 +148,20 @@ function basemapFromURL (defaultBasemap: string, layerControl: L.Control.Layers)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setupBasemapState (map: L.Map): void {
-	map.on('baselayerchange', (e: L.LayersControlEvent) => updateQueryStringParam('basemap', e.name));
+function setupBasemapState (map: L.Map, paramName: string = 'basemap'): void {
+	map.on('baselayerchange', (e: L.LayersControlEvent) => updateQueryStringParam(paramName, e.name));
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class OverlayState {
 	map: L.Map;
 	layerControl: L.Control.Layers;
+	paramName: string;
 
-	constructor (map: L.Map, layerControl: L.Control.Layers) {
+	constructor (map: L.Map, layerControl: L.Control.Layers, paramName: string = 'overlays') {
 		this.map = map;
 		this.layerControl = layerControl;
+		this.paramName = paramName;
 	}
 
 	getOverlays (): L.Layer[] {
@@ -182,7 +190,7 @@ class OverlayState {
 		});
 
 		console.log('Overlay bits:', bits);
-		updateQueryStringParam('overlays', bits);
+		updateQueryStringParam(this.paramName, bits);
 	}
 
 	setup (): void {
@@ -192,7 +200,7 @@ class OverlayState {
 
 	fromURL (defaultOverlays: string): void {
 		const url = new URL(window.location.href);
-		const bits = url.searchParams.get('overlays') ?? defaultOverlays;
+		const bits = url.searchParams.get(this.paramName) ?? defaultOverlays;
 		console.log('Overlay bits from URL:', bits);
 
 		const overlays = this.getOverlays();
