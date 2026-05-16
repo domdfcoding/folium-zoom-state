@@ -8,7 +8,7 @@ from domdf_folium_tools import set_branca_random_seed
 from folium.template import Template
 
 # this package
-from folium_zoom_state import BasemapFromURL, ZoomStateJS, ZoomStateJSEmbedded, ZoomStateJSExternal, ZoomStateMap
+from folium_zoom_state import BasemapFromURL, OverlayState, ZoomStateJS, ZoomStateJSEmbedded, ZoomStateJSExternal, ZoomStateMap
 
 
 def test_default_map(advanced_file_regression: AdvancedFileRegressionFixture):
@@ -137,6 +137,22 @@ def test_cdn(advanced_file_regression: AdvancedFileRegressionFixture):
 
 	m = ZoomStateMap(location=(45.5236, -122.6750))
 	ZoomStateJS().add_to(m, name="my-zoom-state")
+
+	root = m.get_root()
+	html = root.render()
+	html = re.sub("folium-zoom-state@v.*/folium_zoom_state", "folium-zoom-state@v0.0.0/folium_zoom_state", html)
+	advanced_file_regression.check(html, extension=".html")
+
+
+def test_overlay_state(advanced_file_regression: AdvancedFileRegressionFixture):
+	set_branca_random_seed("ZOOM")
+
+	m = folium.Map(location=(45.5236, -122.6750))
+	folium.FeatureGroup("group1").add_to(m)
+	folium.FeatureGroup("group2").add_to(m)
+	folium.FeatureGroup("group3", show=False).add_to(m)
+	lc = folium.LayerControl().add_to(m)
+	OverlayState(lc).add_to(m)
 
 	root = m.get_root()
 	html = root.render()
