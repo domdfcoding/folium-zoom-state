@@ -133,6 +133,13 @@ class BasemapFromURL(folium.MacroElement):
 	:param layer_control: The layer control element.
 	"""
 
+	default_js = [
+			(
+					"zoom_state_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/folium-zoom-state@v{__version__}/folium_zoom_state/zoom_state.min.js",
+					),
+			]
+
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
