@@ -98,16 +98,33 @@ function updateQueryStringParam (key, value) {
 	// window.history.pushState({}, null, url);
 	window.history.replaceState({}, '', url);
 }
-function setupZoomState (map) {
-	map.on('zoomend', function () {
-		const zoomLvl = map.getZoom();
+class ZoomState {
+	constructor (map) {
+		this.map = map;
+	}
+
+	onZoomEnd () {
+		const zoomLvl = this.map.getZoom();
 		updateQueryStringParam('zoom', zoomLvl);
-	});
-	map.on('moveend', function () {
-		const centre = map.getCenter();
+	}
+
+	onMoveEnd () {
+		const centre = this.map.getCenter();
 		updateQueryStringParam('lat', centre.lat);
 		updateQueryStringParam('lng', centre.lng);
-	});
+	}
+
+	setup () {
+		this.map.on('zoomend', this.onZoomEnd, this);
+		this.map.on('moveend', this.onMoveEnd, this);
+	}
+
+	fromURL (defaultZoom, defaultCentre) {
+		return zoomStateFromURL(defaultZoom, defaultCentre);
+	}
+}
+function setupZoomState (map) {
+	new ZoomState(map).setup();
 }
 function zoomStateFromURL (defaultZoom, defaultCentre) {
 	const url = new URL(window.location.href);
@@ -126,14 +143,29 @@ function zoomStateFromURL (defaultZoom, defaultCentre) {
 	}
 	return { centre, zoomLvl };
 }
-function basemapFromURL (defaultBasemap, layerControl) {
+class BasemapState {
+	constructor (map, layerControl, paramName = 'basemap') {
+		this.map = map;
+		this.layerControl = layerControl;
+		this.paramName = paramName;
+	}
+
+	fromURL (defaultBasemap) {
+		return basemapFromURL(defaultBasemap, this.layerControl, this.paramName);
+	}
+
+	setup () {
+		setupBasemapState(this.map, this.paramName);
+	}
+}
+function basemapFromURL (defaultBasemap, layerControl, paramName = 'basemap') {
 	let _a;
 	const url = new URL(window.location.href);
 	const basemapLayers = Object.fromEntries(
 		/* @ts-expect-error _layers does exist but is private */
 		layerControl._layers.map((element) => [element.name, element.layer]));
-	if (url.searchParams.has('basemap')) {
-		const basemapName = (_a = url.searchParams.get('basemap')) !== null && _a !== void 0 ? _a : defaultBasemap;
+	if (url.searchParams.has(paramName)) {
+		const basemapName = (_a = url.searchParams.get(paramName)) !== null && _a !== void 0 ? _a : defaultBasemap;
 		console.log(basemapName);
 		if (basemapName in basemapLayers) {
 			return basemapLayers[basemapName];
@@ -141,8 +173,62 @@ function basemapFromURL (defaultBasemap, layerControl) {
 	}
 	return basemapLayers[defaultBasemap];
 }
-function setupBasemapState (map) {
-	map.on('baselayerchange', (e) => updateQueryStringParam('basemap', e.name));
+function setupBasemapState (map, paramName = 'basemap') {
+	map.on('baselayerchange', (e) => updateQueryStringParam(paramName, e.name));
+}
+class OverlayState {
+	constructor (map, layerControl, paramName = 'overlays') {
+		this.map = map;
+		this.layerControl = layerControl;
+		this.paramName = paramName;
+	}
+
+	getOverlays () {
+		const overlays = [];
+		/* @ts-expect-error _layers does exist but is private */
+		this.layerControl._layers.forEach((layer) => {
+			if (layer.overlay) {
+				overlays.push(layer.layer);
+			}
+		});
+		return overlays;
+	}
+
+	updateOverlayParams () {
+		const overlays = this.getOverlays();
+		let bits = '';
+		overlays.forEach((layer) => {
+			if (this.map.hasLayer(layer)) {
+				bits += '1';
+			} else {
+				bits += '0';
+			}
+		});
+		console.log('Overlay bits:', bits);
+		updateQueryStringParam(this.paramName, bits);
+	}
+
+	setup () {
+		this.map.on('overlayadd', this.updateOverlayParams, this);
+		this.map.on('overlayremove', this.updateOverlayParams, this);
+	}
+
+	fromURL (defaultOverlays) {
+		let _a;
+		const url = new URL(window.location.href);
+		const bits = (_a = url.searchParams.get(this.paramName)) !== null && _a !== void 0 ? _a : defaultOverlays;
+		console.log('Overlay bits from URL:', bits);
+		const overlays = this.getOverlays();
+		overlays.forEach((layer, index) => {
+			console.log(bits.charAt(index));
+			if ((bits.charAt(index) || '1') === '1') {
+				layer.addTo(this.map);
+			} else {
+				layer.removeFrom(this.map);
+				// TODO: assert this.map.hasLayer(layer) False
+			}
+		});
+	}
 }
 			setupZoomState(map_6c1da53398685c25022001fb144b393e);
 
