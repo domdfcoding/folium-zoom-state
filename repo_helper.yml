@@ -12,7 +12,6 @@ short_desc: 'Folium plugin to preserve zoom level and map position when reloadin
 
 enable_conda: false
 enable_docs: false
-on_pypi: false
 use_whey: true
 
 python_versions:

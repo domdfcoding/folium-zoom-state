@@ -17,8 +17,10 @@ folium-zoom-state
 
 	* - Tests
 	  - |actions_linux| |actions_windows| |actions_macos| |coveralls|
+	* - PyPI
+	  - |pypi-version| |supported-versions| |supported-implementations| |wheel|
 	* - Activity
-	  - |commits-latest| |commits-since| |maintained|
+	  - |commits-latest| |commits-since| |maintained| |pypi-downloads|
 	* - QA
 	  - |codefactor| |actions_flake8| |actions_mypy|
 	* - Other
@@ -56,6 +58,22 @@ folium-zoom-state
 	:target: https://www.codefactor.io/repository/github/domdfcoding/folium-zoom-state
 	:alt: CodeFactor Grade
 
+.. |pypi-version| image:: https://img.shields.io/pypi/v/folium-zoom-state
+	:target: https://pypi.org/project/folium-zoom-state/
+	:alt: PyPI - Package Version
+
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/folium-zoom-state?logo=python&logoColor=white
+	:target: https://pypi.org/project/folium-zoom-state/
+	:alt: PyPI - Supported Python Versions
+
+.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/folium-zoom-state
+	:target: https://pypi.org/project/folium-zoom-state/
+	:alt: PyPI - Supported Implementations
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/folium-zoom-state
+	:target: https://pypi.org/project/folium-zoom-state/
+	:alt: PyPI - Wheel
+
 .. |license| image:: https://img.shields.io/github/license/domdfcoding/folium-zoom-state
 	:target: https://github.com/domdfcoding/folium-zoom-state/blob/master/LICENSE
 	:alt: License
@@ -74,6 +92,10 @@ folium-zoom-state
 .. |maintained| image:: https://img.shields.io/maintenance/yes/2026
 	:alt: Maintenance
 
+.. |pypi-downloads| image:: https://img.shields.io/pypi/dm/folium-zoom-state
+	:target: https://pypistats.org/packages/folium-zoom-state
+	:alt: PyPI - Downloads
+
 .. end shields
 
 Installation
@@ -81,12 +103,12 @@ Installation
 
 .. start installation
 
-``folium-zoom-state`` can be installed from GitHub.
+``folium-zoom-state`` can be installed from PyPI.
 
 To install with ``pip``:
 
 .. code-block:: bash
 
-	$ python -m pip install git+https://github.com/domdfcoding/folium-zoom-state
+	$ python -m pip install folium-zoom-state
 
 .. end installation
